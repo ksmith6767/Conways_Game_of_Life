@@ -1,12 +1,28 @@
 from GameOfLife.Cell import Cell
-width = 9
-height = 9
 
+import numpy as np
 
+# board arrays to store cells
+board0 = np.empty((5, 5), Cell)
+board1 = np.empty((5, 5), Cell)
 
-cell = Cell
+i = 0
+j = 0
 
-cell.__init__(cell, 5, 7, False)
+# initializing the board
+for i in range(5):
+    for j in range(5):
+        if i % 2 == 0:
+            stat = True
+        else:
+            stat = False
+        board0[i][j] = Cell(i, j, stat)
 
-
-print(cell.getx(cell), cell.gety(cell), cell.getStatus(cell))
+# printing the initialized board
+for i in range(5):
+    print()
+    for j in range(5):
+        if board0[i][j].getStatus():
+            print("O", end=' ')
+        else:
+            print("X", end=' ')

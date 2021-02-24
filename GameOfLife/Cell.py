@@ -13,4 +13,3 @@ class Cell:
 
     def getStatus(self):
         return self.status
-
