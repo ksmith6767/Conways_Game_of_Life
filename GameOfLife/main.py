@@ -69,6 +69,13 @@ for i in range(5):
         if board0[i][j].getStatus():
             if lifeCount == 3 or lifeCount == 2:
                 board1[i][j].setStatus(True)
+            else:
+                board1[i][j].setStatus(False)
+        elif board0[i][j].getStatus() == False:
+            if lifeCount == 3:
+                board1[i][j].setStatus(True)
+            else:
+                board1[i][j].setStatus(False)
 
 
 
