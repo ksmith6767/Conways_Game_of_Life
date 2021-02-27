@@ -13,3 +13,6 @@ class Cell:
 
     def getStatus(self):
         return self.status
+
+    def setStatus(self, stat):
+        self.status = stat
