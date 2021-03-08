@@ -18,8 +18,10 @@ class Board:
                 stat = False
                 rand = random.randint(0, 1)
 
-                if i == 1:
+                if rand == 1:
                     stat = True
+                else:
+                    stat = False
 
                 self.array[i][j] = Cell(i, j, stat)
 
@@ -33,7 +35,9 @@ class Board:
                     print("X", end=" ")
 
     def clear(self):
-        self.array = np.empty((self.width, self.height), Cell)
+        for i in range(self.width):
+            for j in range(self.height):
+                self.array[i][j] = Cell(i, j, False)
 
     def getCell(self, x, y):
         return self.array[x][y]
@@ -47,7 +51,7 @@ class Board:
             tempWidthStart = i - 1
         else:
             tempWidthStart = i
-        if i < 4:
+        if i < self.width-1:
             tempWidthEnd = i + 1
         else:
             tempWidthEnd = i
@@ -60,7 +64,7 @@ class Board:
                 tempHeightStart = j - 1
             else:
                 tempHeightStart = j
-            if j < 5:
+            if j < self.height-1:
                 tempHeightEnd = j + 1
             else:
                 tempHeightEnd = j
@@ -68,7 +72,6 @@ class Board:
             # height loop for surrounding cells
 
             while tempHeightStart <= tempHeightEnd:
-                print(tempWidthStart, tempHeightStart)
 
                 # keeps from including the current cell in lifeCount
                 if tempWidthStart != i or tempHeightStart != j:
@@ -79,19 +82,15 @@ class Board:
 
                 tempHeightStart += 1
             tempWidthStart += 1
-        print(lifeCount, "  ", self.array[i][j].getStatus(), i, j, end="  ")
+
         if self.array[i][j].getStatus():
             if lifeCount == 3 or lifeCount == 2:
-                print("live -- live")
                 return True
             else:
-                print("live -- dead")
                 return False
         else:
             if lifeCount == 3:
-                print("dead -- live")
                 return True
             else:
-                print("dead -- dead")
                 return False
 
