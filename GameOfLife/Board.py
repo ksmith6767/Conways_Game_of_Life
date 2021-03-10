@@ -16,7 +16,7 @@ class Board:
         for i in range(self.width):
             for j in range(self.height):
                 stat = False
-                rand = random.randint(0, 1)
+                rand = random.randint(0, 8)
 
                 if rand == 1:
                     stat = True
