@@ -7,10 +7,15 @@ import random
 
 class Board:
 
-    def __init__(self, width, height):
+    def __init__(self, width, height, liverule1, liverule2, deadrule):
         self.width = width
         self.height = height
         self.array = np.empty((width, height), Cell)
+        self.liverule1 = liverule1
+        self.liverule2 = liverule2
+        self.deadrule = deadrule
+
+
 
     def populateBoard(self):
         for i in range(self.width):
@@ -84,12 +89,12 @@ class Board:
             tempWidthStart += 1
 
         if self.array[i][j].getStatus():
-            if lifeCount == 3 or lifeCount == 2:
+            if lifeCount == self.liverule1 or lifeCount == self.liverule2:
                 return True
             else:
                 return False
         else:
-            if lifeCount == 3:
+            if lifeCount == self.deadrule:
                 return True
             else:
                 return False
