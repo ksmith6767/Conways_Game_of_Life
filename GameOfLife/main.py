@@ -64,20 +64,20 @@ newbutton5 = Button(GREY, 300, 625, 200, 75, 'Menu')
 # *** liverule 1 buttons
 
 # top scroll button
-newbutton6 = Button(GREY, 525, 15, 200, 20, '')
+newbutton6 = Button(GREY, 525, 15+30, 200, 20, '')
 #  button
-newbutton7 = Button(GREY, 525, 45, 200, 75, str(liverule1))
+newbutton7 = Button(GREY, 525, 45+30, 200, 75, str(liverule1))
 # bottom scroll button
-newbutton8 = Button(GREY, 525, 130, 200, 20, '')
+newbutton8 = Button(GREY, 525, 130+30, 200, 20, '')
 
 # *** liverule 2 buttons
 
 # top scroll button
-newbutton9 = Button(GREY, 525, 165, 200, 20, '')
+newbutton9 = Button(GREY, 525, 165+30, 200, 20, '')
 #  button
-newbutton10 = Button(GREY, 525, 195, 200, 75, str(liverule2))
+newbutton10 = Button(GREY, 525, 195+30, 200, 75, str(liverule2))
 # bottom scroll button
-newbutton11 = Button(GREY, 525, 280, 200, 20, '')
+newbutton11 = Button(GREY, 525, 280+30, 200, 20, '')
 
 
 
@@ -155,6 +155,10 @@ while run:
     newbutton10.draw(screen)
     newbutton11.draw(screen)
 
+    font = pygame.font.Font('GameOfLife/8-BIT WONDER.TTF', 20)
+    text = font.render('Live Rules', 1, (255, 255, 255))
+    screen.blit(text, (625 - text.get_width() / 2, 15))
+
     # block to draw the representation of the board
     for i in range(WIDTH):
         for j in range(HEIGHT):
@@ -166,7 +170,12 @@ while run:
 
             pygame.draw.rect(screen, switch, (i * 20, j * 20, 18, 18))
 
+
+
+
     pygame.display.update()
+
+
 
     for event in pygame.event.get():
 
@@ -276,5 +285,6 @@ while run:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_c:
                 board.clear()
+
 
     pygame.time.delay(10)
