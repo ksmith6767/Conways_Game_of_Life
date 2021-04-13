@@ -7,6 +7,15 @@ import random
 
 class Board:
 
+    revived = 0
+    killed = 0
+
+    def getRevived(self):
+        return  self.revived
+
+    def getKilled(self):
+        return  self.killed
+
     def __init__(self, width, height, liverule1, liverule2, deadrule):
         self.width = width
         self.height = height
@@ -40,6 +49,8 @@ class Board:
                     print("X", end=" ")
 
     def clear(self):
+        self.revived = 0
+        self.killed = 0
         for i in range(self.width):
             for j in range(self.height):
                 self.array[i][j] = Cell(i, j, False)
@@ -92,9 +103,11 @@ class Board:
             if lifeCount == self.liverule1 or lifeCount == self.liverule2:
                 return True
             else:
+                self.killed += 1
                 return False
         else:
             if lifeCount == self.deadrule:
+                self.revived +=1
                 return True
             else:
                 return False

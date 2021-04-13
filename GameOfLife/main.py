@@ -58,27 +58,61 @@ newbutton3 = Button(GREY, 25, 625, 200, 75, 'Clear')
 # start game button
 newbutton4 = Button(BLACK, 275, 425, 200, 50, 'Start')
 
+
 # menu button
 newbutton5 = Button(GREY, 300, 625, 200, 75, 'Menu')
 
 # *** liverule 1 buttons
 
 # top scroll button
-newbutton6 = Button(GREY, 525, 15+30, 200, 20, '')
+newbutton6 = Button(GREY, 525, 15+30, 200, 20, '+')
 #  button
 newbutton7 = Button(GREY, 525, 45+30, 200, 75, str(liverule1))
 # bottom scroll button
-newbutton8 = Button(GREY, 525, 130+30, 200, 20, '')
+newbutton8 = Button(GREY, 525, 130+30, 200, 20, '-')
 
 # *** liverule 2 buttons
 
 # top scroll button
-newbutton9 = Button(GREY, 525, 165+30, 200, 20, '')
+newbutton9 = Button(GREY, 525, 165+30, 200, 20, '+')
 #  button
 newbutton10 = Button(GREY, 525, 195+30, 200, 75, str(liverule2))
 # bottom scroll button
-newbutton11 = Button(GREY, 525, 280+30, 200, 20, '')
+newbutton11 = Button(GREY, 525, 280+30, 200, 20, '-')
 
+# *** deadrule Buttons
+
+newbutton12 = Button(GREY, 525, 375, 200, 20, '+')
+#  button
+newbutton13 = Button(GREY, 525, 405, 200, 75, str(deadrule))
+# bottom scroll button
+newbutton14 = Button(GREY, 525, 490, 200, 20, '-')
+
+
+# player selectable colors
+
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+PURPLE = (255, 0, 255)
+ORANGE = (255, 169, 0)
+WHITE = (255, 255, 255)
+REALBLACK = (0, 0, 0)
+
+playercolor = PURPLE
+
+# color buttons
+
+# settings button
+red = Button(RED, 235, 525, 75, 75, '')
+redborder = Button(RED, 230, 520, 85, 85, '')
+green = Button(GREEN, 335, 525, 75, 75, '')
+greenborder = Button(GREEN, 330, 520, 85, 85, '')
+purple = Button(PURPLE, 435, 525, 75, 75, '')
+purpleborder = Button(PURPLE, 430, 520, 85, 85, '')
+blue = Button(BLUE, 275, 625, 75, 75, '')
+blueborder = Button(BLUE, 270, 620, 85, 85, '')
+orange = Button(ORANGE, 400, 625, 75, 75, '')
+orangeborder = Button(ORANGE, 395, 620, 85, 85, '')
 
 
 #menu loop
@@ -99,13 +133,24 @@ while run:
             for j in range(HEIGHT):
 
                 if board2.getCell(i, j).getStatus():
-                    switch = BLUE
+                    switch = playercolor
                 else:
                     switch = GREY
 
                 pygame.draw.rect(screen, switch, (i * 30, j * 30, 28, 28))
 
         newbutton4.draw(screen)
+        redborder.draw(screen)
+        red.draw(screen)
+        greenborder.draw(screen)
+        green.draw(screen)
+        purpleborder.draw(screen)
+        purple.draw(screen)
+        blueborder.draw(screen)
+        blue.draw(screen)
+        orangeborder.draw(screen)
+        orange.draw(screen)
+
 
         font = pygame.font.Font('GameOfLife/8-BIT WONDER.TTF', 50)
         text = font.render('Game of Life', 1, (255, 255, 255))
@@ -134,6 +179,26 @@ while run:
                     newbutton4.color = LIGHTGREY
                 else:
                     newbutton4.color = BLACK
+                if red.over(pygame.mouse.get_pos()):
+                    redborder.color = WHITE
+                else:
+                    redborder.color = RED
+                if blue.over(pygame.mouse.get_pos()):
+                    blueborder.color = WHITE
+                else:
+                    blueborder.color = BLUE
+                if green.over(pygame.mouse.get_pos()):
+                    greenborder.color = WHITE
+                else:
+                    greenborder.color = GREEN
+                if purple.over(pygame.mouse.get_pos()):
+                    purpleborder.color = WHITE
+                else:
+                    purpleborder.color = PURPLE
+                if orange.over(pygame.mouse.get_pos()):
+                    orangeborder.color = WHITE
+                else:
+                    orangeborder.color = ORANGE
 
             if event.type == pygame.MOUSEBUTTONUP:
                 mouse_pos = event.pos
@@ -141,6 +206,16 @@ while run:
                     run = True
                     menurun = False
                     newbutton4.color = BLACK
+                if purple.over(mouse_pos):
+                    playercolor = PURPLE
+                if blue.over(mouse_pos):
+                    playercolor = BLUE
+                if orange.over(mouse_pos):
+                    playercolor = ORANGE
+                if red.over(mouse_pos):
+                    playercolor = RED
+                if green.over(mouse_pos):
+                    playercolor = GREEN
 
     screen.fill((35, 35, 35))
 
@@ -154,17 +229,41 @@ while run:
     newbutton9.draw(screen)
     newbutton10.draw(screen)
     newbutton11.draw(screen)
+    newbutton12.draw(screen)
+    newbutton13.draw(screen)
+    newbutton14.draw(screen)
+
 
     font = pygame.font.Font('GameOfLife/8-BIT WONDER.TTF', 20)
     text = font.render('Live Rules', 1, (255, 255, 255))
     screen.blit(text, (625 - text.get_width() / 2, 15))
+
+    font = pygame.font.Font('GameOfLife/8-BIT WONDER.TTF', 20)
+    text = font.render('Dead Rule', 1, (255, 255, 255))
+    screen.blit(text, (625 - text.get_width() / 2, 345))
+
+    font = pygame.font.Font('GameOfLife/8-BIT WONDER.TTF', 20)
+    text = font.render('Revived', 1, (255, 255, 255))
+    screen.blit(text, (625 - text.get_width() / 2, 525))
+
+    font = pygame.font.Font('GameOfLife/8-BIT WONDER.TTF', 35)
+    text = font.render(str(board.getRevived()), 1, (255, 255, 255))
+    screen.blit(text, (625 - text.get_width() / 2, 555))
+
+    font = pygame.font.Font('GameOfLife/8-BIT WONDER.TTF', 20)
+    text = font.render('Killed', 1, (255, 255, 255))
+    screen.blit(text, (625 - text.get_width() / 2, 625))
+
+    font = pygame.font.Font('GameOfLife/8-BIT WONDER.TTF', 35)
+    text = font.render(str(board.getKilled()), 1, (255, 255, 255))
+    screen.blit(text, (625 - text.get_width() / 2, 655))
 
     # block to draw the representation of the board
     for i in range(WIDTH):
         for j in range(HEIGHT):
 
             if board.getCell(i, j).getStatus():
-                switch = BLUE
+                switch = playercolor
             else:
                 switch = GREY
 
@@ -210,16 +309,31 @@ while run:
             if newbutton5.over(pygame.mouse.get_pos()):
                 newbutton5.color = LIGHTGREY
             else:
-                newbutton6.color = GREY
+                newbutton5.color = GREY
             if newbutton6.over(pygame.mouse.get_pos()):
                 newbutton6.color = LIGHTGREY
-
             else:
-                newbutton8.color = GREY
+                newbutton6.color = GREY
             if newbutton8.over(pygame.mouse.get_pos()):
                 newbutton8.color = LIGHTGREY
             else:
                 newbutton8.color = GREY
+            if newbutton9.over(pygame.mouse.get_pos()):
+                newbutton9.color = LIGHTGREY
+            else:
+                newbutton9.color = GREY
+            if newbutton11.over(pygame.mouse.get_pos()):
+                newbutton11.color = LIGHTGREY
+            else:
+                newbutton11.color = GREY
+            if newbutton12.over(pygame.mouse.get_pos()):
+                newbutton12.color = LIGHTGREY
+            else:
+                newbutton12.color = GREY
+            if newbutton14.over(pygame.mouse.get_pos()):
+                newbutton14.color = LIGHTGREY
+            else:
+                newbutton14.color = GREY
 
 
 
@@ -276,6 +390,16 @@ while run:
                 liverule2 -= 1
                 newbutton10.text = str(liverule2)
                 board.liverule2 = liverule2
+
+            if newbutton12.over(mouse_pos):
+                deadrule += 1
+                newbutton13.text = str(deadrule)
+                board.deadrule = deadrule
+
+            if newbutton14.over(mouse_pos):
+                deadrule -= 1
+                newbutton13.text = str(deadrule)
+                board.deadrule = deadrule
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
