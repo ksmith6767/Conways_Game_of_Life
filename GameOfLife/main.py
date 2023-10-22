@@ -1,158 +1,147 @@
-
-from GameOfLife.Board import Board
-
-from GameOfLife.Button import Button
+from typing import List, Tuple
 
 import pygame
 
+from GameOfLife.resources.resource_constants import ResourceConstants
+
+from GameOfLife.util.logic_util import LogicUtil
+
+from GameOfLife.Board import Board
+from GameOfLife.Button import Button
+from GameOfLife.util.render_util import RenderUtil
+
+
+def get_screen(width: int, height: int):
+    (width, height) = (750, 750)
+    return pygame.display.set_mode((width, height))
+
+
+def evaluate_button_highlighting(buttons: List[Button], mouse_pos: Tuple[float, float]):
+    for button in buttons:
+        if button.over(mouse_pos):
+            button.color = button.highlight_color
+        else:
+            button.color = button.primary_color
+
+
 pygame.init()
-
-# define the screen as 500X500 pixels
-(width, height) = (750, 750)
-screen = pygame.display.set_mode((width, height))
-
-# define original cell rules
-liverule1 = 2
-liverule2 = 3
-deadrule = 3
-
-# color definitions
-GREY = (50, 50, 50)
-LIGHTGREY = (70, 70, 70)
-BLUE = (0, 50, 205)
-LIGHTBLUE = (0, 70, 225)
-BLACK = (30, 30, 30)
-
-# define the bounds of the board for game
-WIDTH = 25
-HEIGHT = 25
-
-# switcher variable for cell colors
-switch = BLUE
-
 clock = pygame.time.Clock()
 
+
+# Define the screen dimensions
+screen = get_screen(750, 750)
+
+# define original cell rules
+live_rule_1 = ResourceConstants.LIVE_RULE_1
+live_rule_2 = ResourceConstants.LIVE_RULE_2
+dead_rule = ResourceConstants.DEAD_RULE
+
 # create new board and temp board for updating purposes
-board = Board(WIDTH, HEIGHT, liverule1, liverule2, deadrule)
-board1 = Board(WIDTH, HEIGHT, liverule1, liverule2, deadrule)
+game_used_board = Board(ResourceConstants.CELLS_WIDE, ResourceConstants.CELLS_TALL, live_rule_1, live_rule_2, dead_rule)
+game_placeholder_board = Board(ResourceConstants.CELLS_WIDE, ResourceConstants.CELLS_TALL,
+                               live_rule_1, live_rule_2, dead_rule)
+game_used_board.populateBoard()
+game_placeholder_board.clear()
 
 # create new board and temp board for menu screen
-board2 = Board(WIDTH, HEIGHT, 2, 3, 3)
-board3 = Board(WIDTH, HEIGHT, 2, 3, 3)
+menu_used_board = Board(ResourceConstants.CELLS_WIDE, ResourceConstants.CELLS_TALL, 2, 3, 3)
+menu_placeholder_board = Board(ResourceConstants.CELLS_WIDE, ResourceConstants.CELLS_TALL, 2, 3, 3)
+menu_used_board.populateBoard()
+menu_placeholder_board.clear()
 
-# initialize game boards
-board.populateBoard()
-board1.clear()
+# Create a list of buttons in the main menu and game
+buttons_in_game: List[Button] = []
+buttons_in_main_menu: List[Button] = []
 
-# initialize menu boards
-board2.populateBoard()
-board3.clear()
+# Instantiate highlightable buttons
+repopulate_button = Button(ResourceConstants.GREY, 25, 525, 200, 75, 'Random')
+buttons_in_game.append(repopulate_button)
+step_button = Button(ResourceConstants.GREY, 300, 525, 200, 75, 'Step')
+buttons_in_game.append(step_button)
+clear_button = Button(ResourceConstants.GREY, 25, 625, 200, 75, 'Clear')
+buttons_in_game.append(clear_button)
+start_game_button = Button(ResourceConstants.LIGHT_BLACK, 275, 425, 200, 50, 'Start')
+buttons_in_main_menu.append(start_game_button)
+menu_button = Button(ResourceConstants.GREY, 300, 625, 200, 75, 'Menu')
+buttons_in_game.append(menu_button)
 
-# repopulate button
-newbutton = Button(GREY, 25, 525, 200, 75, 'Random')
-# step button
-newbutton2 = Button(GREY, 300, 525, 200, 75, 'Step')
-# clear button
-newbutton3 = Button(GREY, 25, 625, 200, 75, 'Clear')
+# Live rule 1 buttons
+live_rule_1_incrementer = Button(ResourceConstants.GREY, 525, 15 + 30, 200, 20, '+')
+buttons_in_game.append(live_rule_1_incrementer)
+live_rule_1_button = Button(ResourceConstants.GREY, 525, 45 + 30, 200, 75, str(live_rule_1),
+                            highlight_color=ResourceConstants.GREY)
+buttons_in_game.append(live_rule_1_button)
+live_rule_1_decrementer = Button(ResourceConstants.GREY, 525, 130 + 30, 200, 20, '-')
+buttons_in_game.append(live_rule_1_decrementer)
 
-# start game button
-newbutton4 = Button(BLACK, 275, 425, 200, 50, 'Start')
+# Live rule 2 buttons
+live_rule_2_incrementer = Button(ResourceConstants.GREY, 525, 165 + 30, 200, 20, '+')
+buttons_in_game.append(live_rule_2_incrementer)
+live_rule_2_button = Button(ResourceConstants.GREY, 525, 195 + 30, 200, 75, str(live_rule_2),
+                            highlight_color=ResourceConstants.GREY)
+buttons_in_game.append(live_rule_2_button)
+live_rule_2_decrementer = Button(ResourceConstants.GREY, 525, 280 + 30, 200, 20, '-')
+buttons_in_game.append(live_rule_2_decrementer)
 
-
-# menu button
-newbutton5 = Button(GREY, 300, 625, 200, 75, 'Menu')
-
-# *** liverule 1 buttons
-
-# top scroll button
-newbutton6 = Button(GREY, 525, 15+30, 200, 20, '+')
-#  button
-newbutton7 = Button(GREY, 525, 45+30, 200, 75, str(liverule1))
-# bottom scroll button
-newbutton8 = Button(GREY, 525, 130+30, 200, 20, '-')
-
-# *** liverule 2 buttons
-
-# top scroll button
-newbutton9 = Button(GREY, 525, 165+30, 200, 20, '+')
-#  button
-newbutton10 = Button(GREY, 525, 195+30, 200, 75, str(liverule2))
-# bottom scroll button
-newbutton11 = Button(GREY, 525, 280+30, 200, 20, '-')
-
-# *** deadrule Buttons
-
-newbutton12 = Button(GREY, 525, 375, 200, 20, '+')
-#  button
-newbutton13 = Button(GREY, 525, 405, 200, 75, str(deadrule))
-# bottom scroll button
-newbutton14 = Button(GREY, 525, 490, 200, 20, '-')
+# Dead rule Buttons
+dead_rule_incrementer = Button(ResourceConstants.GREY, 525, 375, 200, 20, '+')
+buttons_in_game.append(dead_rule_incrementer)
+dead_rule_button = Button(ResourceConstants.GREY, 525, 405, 200, 75, str(dead_rule),
+                          highlight_color=ResourceConstants.GREY)
+buttons_in_game.append(dead_rule_button)
+dead_rule_decrementer = Button(ResourceConstants.GREY, 525, 490, 200, 20, '-')
+buttons_in_game.append(dead_rule_decrementer)
 
 
-# player selectable colors
+player_color = ResourceConstants.PURPLE
 
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-PURPLE = (255, 0, 255)
-ORANGE = (255, 169, 0)
-WHITE = (255, 255, 255)
-REALBLACK = (0, 0, 0)
+# Color settings buttons
+red = Button(ResourceConstants.RED, 235, 525, 75, 75, '',
+             ResourceConstants.RED, ResourceConstants.RED)
+red_border = Button(ResourceConstants.RED, 230, 520, 85, 85, '',
+                    ResourceConstants.RED, ResourceConstants.WHITE)
+green = Button(ResourceConstants.GREEN, 335, 525, 75, 75, '',
+               ResourceConstants.GREEN, ResourceConstants.GREEN)
+green_border = Button(ResourceConstants.GREEN, 330, 520, 85, 85, '',
+                      ResourceConstants.GREEN, ResourceConstants.WHITE)
+purple = Button(ResourceConstants.PURPLE, 435, 525, 75, 75, '',
+                ResourceConstants.PURPLE, ResourceConstants.PURPLE)
+purple_border = Button(ResourceConstants.PURPLE, 430, 520, 85, 85, '',
+                       ResourceConstants.PURPLE, ResourceConstants.WHITE)
+blue = Button(ResourceConstants.BLUE, 275, 625, 75, 75, '',
+              ResourceConstants.BLUE, ResourceConstants.BLUE)
+blue_border = Button(ResourceConstants.BLUE, 270, 620, 85, 85, '',
+                     ResourceConstants.BLUE, ResourceConstants.WHITE)
+orange = Button(ResourceConstants.ORANGE, 400, 625, 75, 75, '',
+                ResourceConstants.ORANGE, ResourceConstants.ORANGE)
+orange_border = Button(ResourceConstants.ORANGE, 395, 620, 85, 85, '',
+                       ResourceConstants.ORANGE, ResourceConstants.WHITE)
 
-playercolor = PURPLE
+buttons_in_main_menu.append(red_border)
+buttons_in_main_menu.append(green_border)
+buttons_in_main_menu.append(purple_border)
+buttons_in_main_menu.append(blue_border)
+buttons_in_main_menu.append(orange_border)
 
-# color buttons
+buttons_in_main_menu.append(red)
+buttons_in_main_menu.append(green)
+buttons_in_main_menu.append(purple)
+buttons_in_main_menu.append(blue)
+buttons_in_main_menu.append(orange)
 
-# settings button
-red = Button(RED, 235, 525, 75, 75, '')
-redborder = Button(RED, 230, 520, 85, 85, '')
-green = Button(GREEN, 335, 525, 75, 75, '')
-greenborder = Button(GREEN, 330, 520, 85, 85, '')
-purple = Button(PURPLE, 435, 525, 75, 75, '')
-purpleborder = Button(PURPLE, 430, 520, 85, 85, '')
-blue = Button(BLUE, 275, 625, 75, 75, '')
-blueborder = Button(BLUE, 270, 620, 85, 85, '')
-orange = Button(ORANGE, 400, 625, 75, 75, '')
-orangeborder = Button(ORANGE, 395, 620, 85, 85, '')
-
-
-#menu loop
+# Main loop variables
 run = True
-menurun = True
-
-
-
-# MAIN GAME LOOP
-
+menu_run = True
 while run:
 
-    while menurun:
-        screen.fill((35, 35, 35))
+    # Main-Menu loop begin *********************************************************************************************
+    while menu_run:
 
-        # block to draw the representation of the board
-        for i in range(WIDTH):
-            for j in range(HEIGHT):
+        RenderUtil.render_menu_board(screen, menu_used_board, player_color)
+        for button in buttons_in_main_menu:
+            button.draw(screen)
 
-                if board2.getCell(i, j).getStatus():
-                    switch = playercolor
-                else:
-                    switch = GREY
-
-                pygame.draw.rect(screen, switch, (i * 30, j * 30, 28, 28))
-
-        newbutton4.draw(screen)
-        redborder.draw(screen)
-        red.draw(screen)
-        greenborder.draw(screen)
-        green.draw(screen)
-        purpleborder.draw(screen)
-        purple.draw(screen)
-        blueborder.draw(screen)
-        blue.draw(screen)
-        orangeborder.draw(screen)
-        orange.draw(screen)
-
-
-        font = pygame.font.Font('GameOfLife/8-BIT WONDER.TTF', 50)
+        font = pygame.font.Font(ResourceConstants.EIGHT_BIT_WONDER_FONT, 50)
         text = font.render('Game of Life', 1, (255, 255, 255))
         screen.blit(text, (375-text.get_width()/2, 200))
 
@@ -160,122 +149,76 @@ while run:
         pygame.time.delay(10)
 
         if pygame.time.get_ticks() % 100 == 0:
-            print("asdf")
-            for i in range(WIDTH):
-                for j in range(HEIGHT):
-                    board3.getCell(i, j).setStatus(board2.checkNeighbors(i, j))
-            for i in range(WIDTH):
-                for j in range(HEIGHT):
-                    board2.getCell(i, j).setStatus(board3.getCell(i, j).getStatus())
+            LogicUtil.update_board(menu_used_board, menu_placeholder_board)
 
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
-                menurun = False
+                menu_run = False
                 run = False
 
             if event.type == pygame.MOUSEMOTION:
-                if newbutton4.over(pygame.mouse.get_pos()):
-                    newbutton4.color = LIGHTGREY
-                else:
-                    newbutton4.color = BLACK
-                if red.over(pygame.mouse.get_pos()):
-                    redborder.color = WHITE
-                else:
-                    redborder.color = RED
-                if blue.over(pygame.mouse.get_pos()):
-                    blueborder.color = WHITE
-                else:
-                    blueborder.color = BLUE
-                if green.over(pygame.mouse.get_pos()):
-                    greenborder.color = WHITE
-                else:
-                    greenborder.color = GREEN
-                if purple.over(pygame.mouse.get_pos()):
-                    purpleborder.color = WHITE
-                else:
-                    purpleborder.color = PURPLE
-                if orange.over(pygame.mouse.get_pos()):
-                    orangeborder.color = WHITE
-                else:
-                    orangeborder.color = ORANGE
+                evaluate_button_highlighting(buttons_in_main_menu, pygame.mouse.get_pos())
 
             if event.type == pygame.MOUSEBUTTONUP:
                 mouse_pos = event.pos
-                if newbutton4.over(mouse_pos):
+                if start_game_button.over(mouse_pos):
                     run = True
-                    menurun = False
-                    newbutton4.color = BLACK
+                    menu_run = False
+                    start_game_button.color = ResourceConstants.LIGHT_BLACK
                 if purple.over(mouse_pos):
-                    playercolor = PURPLE
+                    player_color = ResourceConstants.PURPLE
                 if blue.over(mouse_pos):
-                    playercolor = BLUE
+                    player_color = ResourceConstants.BLUE
                 if orange.over(mouse_pos):
-                    playercolor = ORANGE
+                    player_color = ResourceConstants.ORANGE
                 if red.over(mouse_pos):
-                    playercolor = RED
+                    player_color = ResourceConstants.RED
                 if green.over(mouse_pos):
-                    playercolor = GREEN
+                    player_color = ResourceConstants.GREEN
+
+    # Main-Menu loop end ***********************************************************************************************
 
     screen.fill((35, 35, 35))
+    for button in buttons_in_game:
+        button.draw(screen)
 
-    newbutton.draw(screen)
-    newbutton2.draw(screen)
-    newbutton3.draw(screen)
-    newbutton5.draw(screen)
-    newbutton6.draw(screen)
-    newbutton7.draw(screen)
-    newbutton8.draw(screen)
-    newbutton9.draw(screen)
-    newbutton10.draw(screen)
-    newbutton11.draw(screen)
-    newbutton12.draw(screen)
-    newbutton13.draw(screen)
-    newbutton14.draw(screen)
-
-
-    font = pygame.font.Font('GameOfLife/8-BIT WONDER.TTF', 20)
+    font = pygame.font.Font(ResourceConstants.EIGHT_BIT_WONDER_FONT, 20)
     text = font.render('Live Rules', 1, (255, 255, 255))
     screen.blit(text, (625 - text.get_width() / 2, 15))
 
-    font = pygame.font.Font('GameOfLife/8-BIT WONDER.TTF', 20)
+    font = pygame.font.Font(ResourceConstants.EIGHT_BIT_WONDER_FONT, 20)
     text = font.render('Dead Rule', 1, (255, 255, 255))
     screen.blit(text, (625 - text.get_width() / 2, 345))
 
-    font = pygame.font.Font('GameOfLife/8-BIT WONDER.TTF', 20)
+    font = pygame.font.Font(ResourceConstants.EIGHT_BIT_WONDER_FONT, 20)
     text = font.render('Revived', 1, (255, 255, 255))
     screen.blit(text, (625 - text.get_width() / 2, 525))
 
-    font = pygame.font.Font('GameOfLife/8-BIT WONDER.TTF', 35)
-    text = font.render(str(board.getRevived()), 1, (255, 255, 255))
+    font = pygame.font.Font(ResourceConstants.EIGHT_BIT_WONDER_FONT, 35)
+    text = font.render(str(game_used_board.getRevived()), 1, (255, 255, 255))
     screen.blit(text, (625 - text.get_width() / 2, 555))
 
-    font = pygame.font.Font('GameOfLife/8-BIT WONDER.TTF', 20)
+    font = pygame.font.Font(ResourceConstants.EIGHT_BIT_WONDER_FONT, 20)
     text = font.render('Killed', 1, (255, 255, 255))
     screen.blit(text, (625 - text.get_width() / 2, 625))
 
-    font = pygame.font.Font('GameOfLife/8-BIT WONDER.TTF', 35)
-    text = font.render(str(board.getKilled()), 1, (255, 255, 255))
+    font = pygame.font.Font(ResourceConstants.EIGHT_BIT_WONDER_FONT, 35)
+    text = font.render(str(game_used_board.getKilled()), 1, (255, 255, 255))
     screen.blit(text, (625 - text.get_width() / 2, 655))
 
     # block to draw the representation of the board
-    for i in range(WIDTH):
-        for j in range(HEIGHT):
+    for i in range(ResourceConstants.CELLS_WIDE):
+        for j in range(ResourceConstants.CELLS_TALL):
 
-            if board.getCell(i, j).getStatus():
-                switch = playercolor
+            if game_used_board.getCell(i, j).getStatus():
+                pygame.draw.rect(screen, player_color, (i * 20, j * 20, 18, 18))
             else:
-                switch = GREY
-
-            pygame.draw.rect(screen, switch, (i * 20, j * 20, 18, 18))
-
-
-
+                pygame.draw.rect(screen, ResourceConstants.GREY, (i * 20, j * 20, 18, 18))
 
     pygame.display.update()
 
-
-
+    # Process user-input in the game loop
     for event in pygame.event.get():
 
         if event.type == pygame.QUIT:
@@ -283,59 +226,15 @@ while run:
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                print("press")
-                for i in range(WIDTH):
-                    for j in range(HEIGHT):
-                        board1.getCell(i, j).setStatus(board.checkNeighbors(i, j))
-                for i in range(WIDTH):
-                    for j in range(HEIGHT):
-                        board.getCell(i, j).setStatus(board1.getCell(i, j).getStatus())
+                for i in range(ResourceConstants.CELLS_WIDE):
+                    for j in range(ResourceConstants.CELLS_TALL):
+                        game_placeholder_board.getCell(i, j).setStatus(game_used_board.checkNeighbors(i, j))
+                for i in range(ResourceConstants.CELLS_WIDE):
+                    for j in range(ResourceConstants.CELLS_TALL):
+                        game_used_board.getCell(i, j).setStatus(game_placeholder_board.getCell(i, j).getStatus())
 
         if event.type == pygame.MOUSEMOTION:
-            if newbutton.over(pygame.mouse.get_pos()):
-                newbutton.color = LIGHTGREY
-            else:
-                newbutton.color = GREY
-
-            if newbutton2.over(pygame.mouse.get_pos()):
-                newbutton2.color = LIGHTGREY
-            else:
-                newbutton2.color = GREY
-
-            if newbutton3.over(pygame.mouse.get_pos()):
-                newbutton3.color = LIGHTGREY
-            else:
-                newbutton3.color = GREY
-            if newbutton5.over(pygame.mouse.get_pos()):
-                newbutton5.color = LIGHTGREY
-            else:
-                newbutton5.color = GREY
-            if newbutton6.over(pygame.mouse.get_pos()):
-                newbutton6.color = LIGHTGREY
-            else:
-                newbutton6.color = GREY
-            if newbutton8.over(pygame.mouse.get_pos()):
-                newbutton8.color = LIGHTGREY
-            else:
-                newbutton8.color = GREY
-            if newbutton9.over(pygame.mouse.get_pos()):
-                newbutton9.color = LIGHTGREY
-            else:
-                newbutton9.color = GREY
-            if newbutton11.over(pygame.mouse.get_pos()):
-                newbutton11.color = LIGHTGREY
-            else:
-                newbutton11.color = GREY
-            if newbutton12.over(pygame.mouse.get_pos()):
-                newbutton12.color = LIGHTGREY
-            else:
-                newbutton12.color = GREY
-            if newbutton14.over(pygame.mouse.get_pos()):
-                newbutton14.color = LIGHTGREY
-            else:
-                newbutton14.color = GREY
-
-
+            evaluate_button_highlighting(buttons_in_game, pygame.mouse.get_pos())
 
         if event.type == pygame.MOUSEBUTTONUP:
             x, y = pygame.mouse.get_pos()
@@ -345,70 +244,63 @@ while run:
                 x = int(x/20)
                 y = int(y/20)
                 print(x, y)
-                if not board.getCell(x, y).getStatus():
-                    board.getCell(x, y).setStatus(True)
+                if not game_used_board.getCell(x, y).getStatus():
+                    game_used_board.getCell(x, y).setStatus(True)
                 else:
-                    board.getCell(x, y).setStatus(False)
+                    game_used_board.getCell(x, y).setStatus(False)
             # button collision for random population
-            if newbutton.over(mouse_pos):
+            if repopulate_button.over(mouse_pos):
                 print("ahhhh")
-                board.populateBoard()
+                game_used_board.populateBoard()
             # button collision for stepping
-            if newbutton2.over(mouse_pos):
-                for i in range(WIDTH):
-                    for j in range(HEIGHT):
-                        board1.getCell(i, j).setStatus(board.checkNeighbors(i, j))
-                for i in range(WIDTH):
-                    for j in range(HEIGHT):
-                        board.getCell(i, j).setStatus(board1.getCell(i, j).getStatus())
+            if step_button.over(mouse_pos):
+                LogicUtil.update_board(game_used_board, game_placeholder_board)
 
             # button collision for clearing the board
-            if newbutton3.over(mouse_pos):
+            if clear_button.over(mouse_pos):
                 print("ahhhh")
-                board.clear()
+                game_used_board.clear()
 
-            if newbutton5.over(mouse_pos):
-                menurun = True
+            if menu_button.over(mouse_pos):
+                menu_run = True
 
-            if newbutton6.over(mouse_pos):
-                liverule1 += 1
-                newbutton7.text = str(liverule1)
-                board.liverule1 = liverule1
+            if live_rule_1_incrementer.over(mouse_pos):
+                live_rule_1 += 1
+                live_rule_1_button.text = str(live_rule_1)
+                game_used_board.liverule1 = live_rule_1
 
-            if newbutton8.over(mouse_pos):
-                liverule1 -= 1
-                newbutton7.text = str(liverule1)
-                board.liverule1 = liverule1
+            if live_rule_1_decrementer.over(mouse_pos):
+                live_rule_1 -= 1
+                live_rule_1_button.text = str(live_rule_1)
+                game_used_board.liverule1 = live_rule_1
 
+            if live_rule_2_incrementer.over(mouse_pos):
+                live_rule_2 += 1
+                live_rule_2_button.text = str(live_rule_2)
+                game_used_board.liverule2 = live_rule_2
 
-            if newbutton9.over(mouse_pos):
-                liverule2 += 1
-                newbutton10.text = str(liverule2)
-                board.liverule2 = liverule2
+            if live_rule_2_decrementer.over(mouse_pos):
+                live_rule_2 -= 1
+                live_rule_2_button.text = str(live_rule_2)
+                game_used_board.liverule2 = live_rule_2
 
-            if newbutton11.over(mouse_pos):
-                liverule2 -= 1
-                newbutton10.text = str(liverule2)
-                board.liverule2 = liverule2
+            if dead_rule_incrementer.over(mouse_pos):
+                dead_rule += 1
+                dead_rule_button.text = str(dead_rule)
+                game_used_board.deadrule = dead_rule
 
-            if newbutton12.over(mouse_pos):
-                deadrule += 1
-                newbutton13.text = str(deadrule)
-                board.deadrule = deadrule
-
-            if newbutton14.over(mouse_pos):
-                deadrule -= 1
-                newbutton13.text = str(deadrule)
-                board.deadrule = deadrule
+            if dead_rule_decrementer.over(mouse_pos):
+                dead_rule -= 1
+                dead_rule_button.text = str(dead_rule)
+                game_used_board.deadrule = dead_rule
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 print("press r")
-                board.populateBoard()
+                game_used_board.populateBoard()
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_c:
-                board.clear()
-
+                game_used_board.clear()
 
     pygame.time.delay(10)
